@@ -10,8 +10,8 @@ df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\africa_economics_v2.csv")
 
 # Creating the app and the layout
 app = dash.Dash(__name__)
-app.layout = html.Div(style={'backgroundColor': '#000000', 'color': '#FFFFFF', 'margin': '0'}, children=[
-    html.H1("African GDP Dashboard", style={'textAlign': 'center', 'color': '#FFFFFF', 'fontFamily': 'sans-serif',  'paddingTop': '30px'}),
+app.layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0'}, children=[
+    html.H1("African GDP Dashboard", style={'textAlign': 'center', 'color': 'black', 'fontFamily': 'sans-serif',  'paddingTop': '30px'}),
 
     # Creating a slider for each year, allowing the user to filter
     dcc.Slider(
@@ -24,17 +24,17 @@ app.layout = html.Div(style={'backgroundColor': '#000000', 'color': '#FFFFFF', '
     ),
 
     # Creating a chloropleth and bar chart, to be side by side - using 49% width
-    html.Div(style={'display': 'flex', 'backgroundColor': '#000000'}, children=[
+    html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
         # Chloropleth map
         dcc.Graph(
             id='world-map',
-            style={'border': '1px solid purple', 'height': '400px', 'width': '49%', 'float': 'left', 'margin-left': '5px', 'margin-right': '10px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}
+            style={'border': '1px solid black', 'height': '400px', 'width': '49%', 'float': 'left', 'margin-left': '5px', 'margin-right': '10px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}
         ),
 
         # Bar chart
         dcc.Graph(
             id='gdp-bar-chart',
-            style={'border': '1px solid purple', 'height': '400px', 'width': '49%', 'float': 'right', 'margin-right': '5px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}         
+            style={'border': '1px solid black', 'height': '400px', 'width': '49%', 'float': 'right', 'margin-right': '5px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}         
         ),
     ]),
 ])
@@ -54,9 +54,10 @@ def update_charts(selected_year):
         locations='Code',
         color='GDP (USD)',
         hover_name='Country',
-        scope="africa",
         color_continuous_scale=px.colors.sequential.Plasma,
-        projection='orthographic'
+        projection='orthographic',
+        title='',
+        template='plotly'
     )
 
     # Filtering and Sorting data frame to get top five values
@@ -71,16 +72,31 @@ def update_charts(selected_year):
         title=f'Largest 5 African Economies in {selected_year}',
         labels={'GDP (USD)': 'GDP (USD in Billions)'}
     )
+    
+    map_fig.update_traces(marker=dict(line={"color": "#d1d1d1", "width": 0.5}))
 
-    map_fig.update_layout(
-        paper_bgcolor = "#333333",
-        font=dict(color="white")
+    map_fig.update_layout(geo=dict(showframe=False,
+                                    showcoastlines=False,
+                                    showcountries=True,
+                                    countrycolor="#d1d1d1",
+                                    showocean=True,
+                                    oceancolor="#c9d2e0",
+                                    showlakes=True,
+                                    lakecolor="#99c0db",
+                                    showrivers=True,
+                                    rivercolor="#99c0db",
+                                    resolution=110),
+        coloraxis_colorbar=dict(title="GDP"),
+        paper_bgcolor = "white",
+        font=dict(color="black"),
+        margin=dict(l=20, r=20, t=10, b=10)
     )
 
     bar_fig.update_layout(
-        paper_bgcolor = "#333333",
-        font=dict(color="white"),
-        title=dict(x=0.5)
+        paper_bgcolor = "white",
+        font=dict(color="black"),
+        title=dict(x=0.5),
+        margin=dict(l=30, r=30, t=60, b=60)
     )
 
     # returning the map figure and bar chart
