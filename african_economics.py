@@ -28,13 +28,22 @@ app.layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'ma
         # Chloropleth map
         dcc.Graph(
             id='world-map',
-            style={'border': '1px solid black', 'height': '400px', 'width': '49%', 'float': 'left', 'margin-left': '5px', 'margin-right': '10px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}
+            style={'border': '1px solid black', 'height': '400px', 'width': '100%', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}
         ),
+    ]),
+    
+    html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[   
 
         # Bar chart
         dcc.Graph(
             id='gdp-bar-chart',
             style={'border': '1px solid black', 'height': '400px', 'width': '49%', 'float': 'right', 'margin-right': '5px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}         
+        ),
+
+        # Pie chart
+        dcc.Graph(
+            id='gdp-pie-chart',
+            style={'border': '1px solid black', 'height': '400px', 'width': '49%',  'float': 'left','margin-left': '5px', 'margin-right': '10px', 'margin-top': '20px', 'margin-bottom': '20px', 'backgroundColor': '#000000'}
         ),
     ]),
 ])
@@ -42,7 +51,8 @@ app.layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'ma
 # Using callbacks to update choropleth map and bar chart based on selected year
 @app.callback(
     [Output('world-map', 'figure'),
-     Output('gdp-bar-chart', 'figure')],
+     Output('gdp-bar-chart', 'figure'),
+     Output('gdp-pie-chart', 'figure')],
     [Input('year-slider', 'value')]
 )
 def update_charts(selected_year):
@@ -73,6 +83,19 @@ def update_charts(selected_year):
         labels={'GDP (USD)': 'GDP (USD in Billions)'}
     )
     
+    # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies 
+    pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
+    top5_indices = pie_df['GDP (USD)'].nlargest(5).index
+    pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other'
+
+    # Features of the pie chart
+    pie_fig = px.pie(
+        pie_df,
+        names='Country',
+        values='GDP (USD)',
+        title=f'GDP Distribution in {selected_year}'
+    )
+    
     map_fig.update_traces(marker=dict(line={"color": "#d1d1d1", "width": 0.5}))
 
     map_fig.update_layout(geo=dict(showframe=False,
@@ -99,8 +122,15 @@ def update_charts(selected_year):
         margin=dict(l=30, r=30, t=60, b=60)
     )
 
+    pie_fig.update_layout(
+        paper_bgcolor="white",
+        font=dict(color="black"),
+        title=dict(x=0.5),
+        margin=dict(l=30, r=30, t=60, b=60)
+    )
+
     # returning the map figure and bar chart
-    return map_fig, bar_fig
+    return map_fig, bar_fig, pie_fig
 
 # running the app, as defined above
 if __name__ == '__main__':
