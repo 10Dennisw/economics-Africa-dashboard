@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import copy
 from plotly.subplots import make_subplots
+import numpy as np
 
 # Loading data
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
@@ -23,7 +24,7 @@ app.layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'ma
         value=df['Year'].min(),
         marks={str(year): str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)},
         step=1, # setting each step as one year
-    ),
+    ), 
 
     # Creating a 2 maps to be side by side - using 49% width.
     # The first map is just a chloropleth map, while the second map has an additional layer above, showing the population
@@ -79,7 +80,8 @@ def update_charts(selected_year):
         color_continuous_scale='reds',
         projection='orthographic',
         title='',
-        template='plotly'
+        template='plotly',
+        range_color=[min(df['GDP_log_column']), max(df['GDP_log_column'])]
     )
 
     # Defining the featured of the additional layer for the second map
@@ -91,7 +93,8 @@ def update_charts(selected_year):
         projection='orthographic',
         title='',
         template='plotly',
-        opacity=0.5
+        opacity=0.5,
+        # size_max=np.nanmax(df['Population '].values)
     )
 
     # Filtering and Sorting data frame to get top five values
@@ -102,7 +105,7 @@ def update_charts(selected_year):
         top_five_df,
         x='Country',
         y='GDP (USD)',
-        title=f'Largest 5 African Economies in {selected_year}',
+        title=f'<b>Largest 5 African Economies in {selected_year}</b>',
         labels={'GDP (USD)': 'GDP (USD in Billions)'},
     )
 
@@ -122,7 +125,7 @@ def update_charts(selected_year):
         pie_df,
         names='Country',
         values='GDP (USD)',
-        title=f'GDP Distribution in {selected_year}'
+        title=f'<b>African GDP Distribution in {selected_year}</b>'
     )
 
     # customising the appearance and marker traces in both map figures
@@ -144,14 +147,20 @@ def update_charts(selected_year):
         coloraxis_colorbar=dict(title="GDP (log)"), # the colour is denotated by the logarithm of the GDP
         paper_bgcolor = "white",
         font=dict(color="black"),
-        margin=dict(l=20, r=20, t=10, b=10)
+        margin=dict(l=20, r=20, t=40, b=10)
     )
     
     # setting the map to focus on Africa
     map_fig.update_geos(projection_rotation=dict(lon=17, lat=0))
 
     map_fig2= copy.deepcopy(map_fig) # creating a deepcopy of the map to avoid changes being updated to both maps
+    
+    map_fig.update_layout(title_text="<b>Chloropleth Map of GDP (log)</b>",
+                          title_x=0.5)
+    
     map_fig_with_population = map_fig2.add_trace(scattergeo_fig.data[0]) # adding the population bubbles to the chloropleth map
+    map_fig_with_population.update_layout(title_text="<b>Map of GDP (log) with Population Bubbles</b>",
+                                          title_x=0.5)
 
     # updating the layout for the bar charts
     bar_fig.update_layout(
@@ -161,8 +170,10 @@ def update_charts(selected_year):
         margin=dict(l=30, r=30, t=60, b=60),
         # Editing the y-axis to be easier to interpret for the user
         yaxis=dict(tickvals = [50000000000, 100000000000, 150000000000, 200000000000, 250000000000,
-                               300000000000, 350000000000, 400000000000, 450000000000, 500000000000],
-                   ticktext = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500])
+                               300000000000, 350000000000, 400000000000, 450000000000, 500000000000,
+                               550000000000],
+                   ticktext = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550],
+                   range=[0, max(df['GDP (USD)'])])
     )
 
     # Setting the layout for the pie chart
