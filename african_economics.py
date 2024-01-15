@@ -69,7 +69,21 @@ app.layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'ma
 
 # A function to update the charts based upon the year selected by the slider 
 def update_charts(selected_year):
+
+    # filter the df based upon the year selected by the user on the slider
     filtered_df = df.loc[df['Year'] == selected_year]
+
+    # creating a dictionairy with countries and their respective colours
+    country_colours = {
+        'South Africa': 'rgb(255, 128, 0)', 
+        'Egypt': 'rgb(213, 109, 225)',  
+        'Nigeria': 'rgb(93, 247, 26)',  
+        'Algeria': 'rgb(0, 255, 255)',  
+        'Morocco': 'rgb(255, 178, 102)',  
+        'Angola': 'rgb(255, 0, 0)',
+        'Sudan': 'rgb(246, 29, 159)',
+        'Other': 'rgb(255, 255, 0)'
+        }
 
     # Defining the features of the choropleth Map
     map_fig = px.choropleth(
@@ -107,29 +121,33 @@ def update_charts(selected_year):
         y='GDP (USD)',
         title=f'<b>Largest 5 African Economies in {selected_year}</b>',
         labels={'GDP (USD)': 'GDP (USD in Billions)'},
+        color='Country', # introducing colour to have different colour based upon country
+        color_discrete_map=country_colours # setting it to country colour dictionairy
     )
 
     # Rotating the angle of the x-axis labels to 25 degrees
     bar_fig.update_layout(xaxis_tickangle=25)
 
     # Addinga black outline of each bar, setting the width to 2
-    bar_fig.update_traces(marker_line_color='black', marker_line_width=1)
+    bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
     
     # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies 
     pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
     top5_indices = pie_df['GDP (USD)'].nlargest(5).index
-    pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other'
+    pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
 
     # Features of the pie chart
     pie_fig = px.pie(
         pie_df,
         names='Country',
         values='GDP (USD)',
-        title=f'<b>African GDP Distribution in {selected_year}</b>'
+        title=f'<b>African GDP Distribution in {selected_year}</b>',
+        color='Country', # introducing colour to have different colour based upon country
+        color_discrete_map=country_colours # setting it to country colour dictionairy
     )
 
     # customising the appearance and marker traces in both map figures
-    map_fig.update_traces(marker=dict(line={"color": "black", "width": 1}))
+    map_fig.update_traces(marker=dict(line={"color": "black", "width": 1.5}))
 
     # Setting the layout of the map and customising the appearance
     map_fig.update_layout(geo=dict(showframe=False,
@@ -173,7 +191,8 @@ def update_charts(selected_year):
                                300000000000, 350000000000, 400000000000, 450000000000, 500000000000,
                                550000000000],
                    ticktext = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550],
-                   range=[0, max(df['GDP (USD)'])])
+                   range=[0, max(df['GDP (USD)'])]),
+        legend_title_text='Country'
     )
 
     # Setting the layout for the pie chart
@@ -182,10 +201,11 @@ def update_charts(selected_year):
         font=dict(color="black"),
         title=dict(x=0.5),
         margin=dict(l=30, r=30, t=60, b=60),
+        legend_title_text='Country' # setting the legend title
     )
 
     # Adding a black outline around each section of the piece, and setting the width to black
-    pie_fig.update_traces(marker=dict(line=dict(color='black', width=1)),
+    pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
                           insidetextfont=dict(color='black', family="Arial", size=16),
     )                   
 
