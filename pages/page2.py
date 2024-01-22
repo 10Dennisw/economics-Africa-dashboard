@@ -64,10 +64,19 @@ pie_fig.add_trace(go.Pie(labels=label_2022_lst,
                      1, 2)
 pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022</b>",
                   title=dict(x=0.5),
-                  font=dict(color="black")
+                  font=dict(color="black"),
+                  annotations=[dict(
+                            text="<b>Pie size is proportional to the total GDP</b>",
+                            showarrow=False,
+                            xref="paper",
+                            yref="paper",
+                            x=0.5,
+                            y=-0.15,
+                            font=dict(size=12)
+                            )]
                   )
 pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
-                  insidetextfont=dict(color='black', family="Arial", size=16))
+                      insidetextfont=dict(color='black', family="Arial", size=12))
 
 
 country_lst = ['South Africa', 'Nigeria', 'Egypt', 'Algeria', 'Morocco']
@@ -82,18 +91,20 @@ for country in filtered_df['Country'].unique():
     scatter_fig.add_trace(go.Scatter(
         x=country_data['Year'],
         y=country_data['GDP (USD)'],
-        name=country  # creating legend label
+        name=country,  # creating legend label
+        line=dict(color=country_colours.get(country, 'rgb(0, 0, 0)'), width=3),  # default to black if country not found
     ))
 
 # Updating layout of the scart
 scatter_fig.update_layout(
     title='<b>GDP over Time</b>',
     title_x=0.5, # setting header in the middle
+    font=dict(family="Arial", color='black'),
     xaxis_title='Year',
     yaxis_title='GDP (USD in Billions)',
     showlegend=True, 
     yaxis=dict(tickvals = [200000000000, 400000000000, 600000000000],
-               ticktext = [200, 400, 600])
+               ticktext = [200, 400, 600]),
 )
 
 
