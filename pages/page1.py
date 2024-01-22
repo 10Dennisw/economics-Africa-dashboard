@@ -7,7 +7,7 @@ import copy
 from plotly.subplots import make_subplots
 import numpy as np
 
-dash.register_page(__name__, path='/', name="Page 1")
+dash.register_page(__name__, path='/', name="Evolution of African GDP: Overview")
 
 # Loading data
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")

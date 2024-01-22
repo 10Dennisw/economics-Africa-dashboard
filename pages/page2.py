@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 
 
 
-dash.register_page(__name__, path='/Page2', name="Page 2")
+dash.register_page(__name__, path='/Page2', name="Comparison between 2000 to 2022")
 
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
 
@@ -87,11 +87,15 @@ for country in filtered_df['Country'].unique():
 
 # Updating layout of the scart
 scatter_fig.update_layout(
-    title='GDP over Time',
+    title='<b>GDP over Time</b>',
+    title_x=0.5, # setting header in the middle
     xaxis_title='Year',
-    yaxis_title='GDP (USD)',
+    yaxis_title='GDP (USD in Billions)',
     showlegend=True, 
+    yaxis=dict(tickvals = [200000000000, 400000000000, 600000000000],
+               ticktext = [200, 400, 600])
 )
+
 
 # function to find the index of a word (country in this case) in a list
 def finding_index (word, list):
@@ -142,12 +146,3 @@ layout = html.Div([
         ),
     ]),
 ])
-
-'''
-figure=px.pie(names=label_2000_lst, 
-                values=values_2000_lst, 
-                title='Sample Bar Chart for Page 2',
-                color=label_2000_lst, # introducing colour to have different colour based upon country
-                color_discrete_map=country_colours), # setting it to country colour dictionairy),
-style={'height': '400px'},
-'''
