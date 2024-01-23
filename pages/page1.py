@@ -183,11 +183,9 @@ def update_charts(selected_year):
         title=dict(x=0.5),
         margin=dict(l=30, r=30, t=60, b=60),
         # Editing the y-axis to be easier to interpret for the user
-        yaxis=dict(tickvals = [50000000000, 100000000000, 150000000000, 200000000000, 250000000000,
-                               300000000000, 350000000000, 400000000000, 450000000000, 500000000000,
-                               550000000000],
-                   ticktext = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550],
-                   range=[0, max(df['GDP (USD)'])]),
+        yaxis=dict(tickvals = [100000000000, 200000000000, 300000000000, 400000000000, 500000000000, 600000000000],
+                   ticktext = [100, 200, 300, 400, 500, 600],
+                   range=[0, 600000000000]),
         legend_title_text='Country'
     )
 

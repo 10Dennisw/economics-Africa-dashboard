@@ -97,7 +97,7 @@ for country in filtered_df['Country'].unique():
 
 # Updating layout of the scart
 scatter_fig.update_layout(
-    title='<b>GDP over Time</b>',
+    title='<b>GDP from 2000 to 2022</b>',
     title_x=0.5, # setting header in the middle
     font=dict(family="Arial", color='black'),
     xaxis_title='Year',
