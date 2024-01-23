@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 
 
 
-dash.register_page(__name__, path='/Page2', name="Comparison between 2000 to 2022")
+dash.register_page(__name__, path='/Page2', name="Africa's Top 5 Economies: Comparison between 2000 to 2022")
 
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
 
@@ -66,7 +66,7 @@ pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022<
                   title=dict(x=0.5),
                   font=dict(color="black"),
                   annotations=[dict(
-                            text="<b>Pie size is proportional to the total GDP</b>",
+                            text="<b>Pie size proportional to the total GDP in year</b>",
                             showarrow=False,
                             xref="paper",
                             yref="paper",
@@ -132,7 +132,14 @@ bar_fig = go.Figure(data=[
 ])
 
 # Changing the bar mode to group them together
-bar_fig.update_layout(barmode='group')
+bar_fig.update_layout(barmode='group',
+                      title="<b>GDP Comparison: 2000 to 2022</b>",
+                      font=dict(family="Arial", color='black'),
+                      yaxis=dict(tickvals = [100000000000, 200000000000, 300000000000, 400000000000, 500000000000],
+                                             ticktext = [100, 200, 300, 400, 500]),
+)
+
+bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
 
 # Defining layout for Page 2 with a bar chart
 layout = html.Div([
