@@ -48,8 +48,7 @@ def getting_labels_and_values(filtered_df):
 label_2000_lst, values_2000_lst = getting_labels_and_values(filtered_2000)
 label_2022_lst, values_2022_lst = getting_labels_and_values(filtered_2022)
 
-pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]],
-                    subplot_titles=['Year 2000', 'Year 2022'])
+pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]])
 pie_fig.add_trace(go.Pie(labels=label_2000_lst, 
                      values=values_2000_lst, 
                      scalegroup='one',
@@ -60,21 +59,42 @@ pie_fig.add_trace(go.Pie(labels=label_2022_lst,
                      values=values_2022_lst, 
                      scalegroup='one',
                      name="African GDP 2022",
-                     marker=dict(colors=[country_colours[label] for label in label_2000_lst])), 
+                     marker=dict(colors=[country_colours[label] for label in label_2022_lst])), 
                      1, 2)
 pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022</b>",
-                  title=dict(x=0.5),
-                  font=dict(color="black"),
-                  annotations=[dict(
-                            text="<b>Pie size proportional to the total GDP in year</b>",
-                            showarrow=False,
-                            xref="paper",
-                            yref="paper",
-                            x=0.5,
-                            y=-0.15,
-                            font=dict(size=12)
-                            )]
-                  )
+                      title=dict(x=0.5),
+                      font=dict(color="black"))
+
+pie_fig.update_layout(annotations=[
+    dict(
+        text="<b>2000</b>",
+        x=0.17,
+        y=1.05,
+        xref="paper",
+        yref="paper",
+        font=dict(size=12),
+        showarrow=False
+    ),
+    dict(
+        text="<b>2022</b>",
+        x=0.83,
+        y=1.05,
+        xref="paper",
+        yref="paper",
+        font=dict(size=12),
+        showarrow=False
+    ),
+    dict(
+        text="<b>Pie size proportional to the total GDP in year</b>",
+        showarrow=False,
+        xref="paper",
+        yref="paper",
+        x=0.5,
+        y=-0.15,
+        font=dict(size=12)
+    ),
+])
+
 pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
                       insidetextfont=dict(color='black', family="Arial", size=12))
 
