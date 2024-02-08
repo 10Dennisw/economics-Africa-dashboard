@@ -82,7 +82,8 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
      Output('world-map-with-population', 'figure'),
      Output('gdp-bar-chart', 'figure'),
      Output('gdp-pie-chart', 'figure')],
-    [Input('year-slider', 'value')]
+    [Input('year-slider', 'value')],
+    allow_duplicate=True
 )
 
 # function to update the charts based upon the year selected by the slider 
