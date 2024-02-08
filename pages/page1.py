@@ -1,3 +1,4 @@
+# importing libraries
 import dash
 from dash import dcc, html, callback
 from dash.dependencies import Input, Output
@@ -7,18 +8,20 @@ import copy
 from plotly.subplots import make_subplots
 import numpy as np
 
+# defining name of page and path
 dash.register_page(__name__, path='/', name="Evolution of African GDP: Overview")
 
-# Loading data
+# loading the data
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
 
+# defining the layout of the page
 layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0'}, children=[
-    # Creating a slider for each year, allowing the user to filter on the year
+    # creating a slider for each year, allowing the user to select a year to filter on
     dcc.Slider(
         id='year-slider',
-        min=df['Year'].min(),  # the minimum set as the minimum year in the dataframe
+        min=df['Year'].min(),  
         max=df['Year'].max(),  
-        value=df['Year'].min(),
+        value=df['Year'].min(), # setting the default value
         marks={str(year): str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)},
         step=1, # setting each step as one year
     ), 
@@ -29,32 +32,50 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         # Setting the format for the first map
         dcc.Graph(
             id='world-map',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'left','margin-left': '5px', 'margin-right': '10px','margin-top': '2px', 'margin-bottom': '5px', 'backgroundColor': '#000000'}
+            # defining the style of figure
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'left',
+                   'margin-left': '5px', 'margin-right': '10px','margin-top': '2px', 'margin-bottom': '5px', 
+                   'backgroundColor': '#000000'}
         ),
         
         # Setting the format for the second map
         dcc.Graph(
             id='world-map-with-population',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'right', 'margin-top': '2px', 'margin-right': '5px', 'margin-bottom': '5px', 'backgroundColor': '#000000'}
+            # defining the style of figure
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'right', 'margin-top': '2px', 'margin-right': '5px', 'margin-bottom': '5px', 
+                   'backgroundColor': '#000000'}
         ),
     ]),
     
-    # This rows also has two different charts. A bar chart and pie chart. Both with 49% width
+    # Having an additional row, which also has two different charts. A bar chart and pie chart
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[   
         # Setting the format for the bar chart
         dcc.Graph(
             id='gdp-bar-chart',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'left','margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 'backgroundColor': '#000000'}       
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'left',
+                   'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
+                   'backgroundColor': '#000000'}       
         ),
 
         # Setting the format for the pie chart
         dcc.Graph(
             id='gdp-pie-chart',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 'backgroundColor': '#000000'}
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'right', 
+                   'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
+                   'backgroundColor': '#000000'}
         ),
     ]),
 ])
 
+# callack used to create interactivity between the user (through the slider)
 @callback(
     [Output('world-map', 'figure'),
      Output('world-map-with-population', 'figure'),
@@ -63,7 +84,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
     [Input('year-slider', 'value')]
 )
 
-# A function to update the charts based upon the year selected by the slider 
+# function to update the charts based upon the year selected by the slider 
 def update_charts(selected_year):
 
     # filter the df based upon the year selected by the user on the slider
@@ -81,7 +102,7 @@ def update_charts(selected_year):
         'Other': 'rgb(255, 255, 0)'
         }
 
-    # Defining the features of the choropleth Map
+    # defining the features of the choropleth Map
     map_fig = px.choropleth(
         filtered_df,
         locations='Code',
@@ -94,23 +115,22 @@ def update_charts(selected_year):
         range_color=[min(df['GDP_log_column']), max(df['GDP_log_column'])]
     )
 
-    # Defining the featured of the additional layer for the second map
+    # defining the featured of the additional layer for the second map with population bubbles
     scattergeo_fig = px.scatter_geo(
         filtered_df,
         locations='Code',  
-        size='Population ',  
+        size='Population',  
         hover_name='Country',
         projection='orthographic',
         title='',
         template='plotly',
-        opacity=0.5,
-        # size_max=np.nanmax(df['Population '].values)
+        opacity=0.5
     )
 
-    # Filtering and Sorting data frame to get top five values
+    # creating as new df to get top five values of GDP
     top_five_df = filtered_df.sort_values(by='GDP (USD)', ascending=False).head(5)
 
-    # Defining the features of the bar chart Map
+    # defining the features of the bar chart Map
     bar_fig = px.bar(
         top_five_df,
         x='Country',
@@ -121,13 +141,12 @@ def update_charts(selected_year):
         color_discrete_map=country_colours # setting it to country colour dictionairy
     )
 
-    # Rotating the angle of the x-axis labels to 25 degrees
+    # rotating the angle of the x-axis labels to 25 degrees
     bar_fig.update_layout(xaxis_tickangle=25)
-
-    # Addinga black outline of each bar, setting the width to 2
+    # Addinga black outline of each bar
     bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
     
-    # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies 
+    # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies combined 
     pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
     top5_indices = pie_df['GDP (USD)'].nlargest(5).index
     pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
@@ -164,14 +183,11 @@ def update_charts(selected_year):
         margin=dict(l=20, r=20, t=40, b=10)
     )
     
-    # setting the map to focus on Africa
-    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0))
-
+    # working on map figures
+    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) # setting the map to focus on Africa
     map_fig2= copy.deepcopy(map_fig) # creating a deepcopy of the map to avoid changes being updated to both maps
-    
     map_fig.update_layout(title_text="<b>Chloropleth Map of GDP (log)</b>",
                           title_x=0.5)
-    
     map_fig_with_population = map_fig2.add_trace(scattergeo_fig.data[0]) # adding the population bubbles to the chloropleth map
     map_fig_with_population.update_layout(title_text="<b>Map of GDP (log) with Population Bubbles</b>",
                                           title_x=0.5)

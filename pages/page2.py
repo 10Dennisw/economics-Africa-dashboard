@@ -7,15 +7,17 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-
-
+# defining name of page and path
 dash.register_page(__name__, path='/Page2', name="Africa's Top 5 Economies: Comparison between 2000 to 2022")
 
+# loading the data
 df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
 
+# filtering the dataframe to 2000, and 2022
 filtered_2000 = df[df['Year']==2000]
 filtered_2022 = df[df['Year']==2022]
 
+# dictionairy outlining country colours
 country_colours = {
     'South Africa': 'rgb(255, 128, 0)', 
     'Egypt': 'rgb(213, 109, 225)',  
@@ -27,16 +29,28 @@ country_colours = {
     'Other': 'rgb(255, 255, 0)'
     }
 
+############################################################################################################
+# PIE CHART
+
+# function for getting the labels and values for the pie chart
 def getting_labels_and_values(filtered_df):
-    pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
-    top5_indices = pie_df['GDP (USD)'].nlargest(5).index
+    ''' 
+    Function to retrieve the largest economies in the df and retrieve the values, 
+    setting other economies not in the Top 5 to other
+    Input arguments: dataframe
+    Returns list of labels and values
+    '''
+    pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False) # sorting values
+    top5_indices = pie_df['GDP (USD)'].nlargest(5).index # getting index for top 5 largest
     pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
 
-    pie_df = pie_df.groupby('Country').sum().reset_index()
+    pie_df = pie_df.groupby('Country').sum().reset_index() # grouping the df by country/ economy
 
+    # creating empty lists
     label_lst = []
     values_lst = []
 
+    # iterating through df and appending label and value to list
     for i, r in pie_df.iterrows():
         country = r['Country']
         GDP = r['GDP (USD)']
@@ -45,26 +59,31 @@ def getting_labels_and_values(filtered_df):
 
     return label_lst, values_lst
 
+# calling functions
 label_2000_lst, values_2000_lst = getting_labels_and_values(filtered_2000)
 label_2022_lst, values_2022_lst = getting_labels_and_values(filtered_2022)
 
+# creating a subplot
 pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]])
+# adding the figure on the left
 pie_fig.add_trace(go.Pie(labels=label_2000_lst, 
                      values=values_2000_lst, 
                      scalegroup='one',
                      name="African GDP 2000",
                      marker=dict(colors=[country_colours[label] for label in label_2000_lst])), 
                      1, 1)
+# adding the figure on the right
 pie_fig.add_trace(go.Pie(labels=label_2022_lst, 
                      values=values_2022_lst, 
                      scalegroup='one',
                      name="African GDP 2022",
                      marker=dict(colors=[country_colours[label] for label in label_2022_lst])), 
                      1, 2)
+# creating header for the subplot
 pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022</b>",
                       title=dict(x=0.5),
                       font=dict(color="black"))
-
+# updating text on the subplot to make the figure easier to understand for the user
 pie_fig.update_layout(annotations=[
     dict(
         text="<b>2000</b>",
@@ -94,15 +113,18 @@ pie_fig.update_layout(annotations=[
         font=dict(size=12)
     ),
 ])
-
+# formating the traces to increase readability for the user
 pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
                       insidetextfont=dict(color='black', family="Arial", size=12))
 
+############################################################################################################
+# SCATTER PLOT
 
+# defining the countries/ economies to look at 
 country_lst = ['South Africa', 'Nigeria', 'Egypt', 'Algeria', 'Morocco']
 # Using boolean indexing to filter rows
 filtered_df = df[df['Country'].isin(country_lst)]
-
+# initalisating scatter plot
 scatter_fig = go.Figure()
 
 # iterating over countries in list and creating a values for each country
@@ -127,25 +149,34 @@ scatter_fig.update_layout(
                ticktext = [200, 400, 600]),
 )
 
+############################################################################################################
+# BAR CHART
 
 # function to find the index of a word (country in this case) in a list
 def finding_index (word, list):
+    '''
+    A function to find the index of the word input in the list input
+    Input: word that the functions looks for
+    Input: List that the function searches in
+    Output: the index of the word
+    '''
     other_index = None
     for i in range(len(list)):
         if list[i] == word:
             other_index = i
     return other_index
 
-# finding an removing other in the list 
+# finding an removing other in the list for 2000
 other_index_2000 = finding_index('Other', label_2000_lst)
 label_2000_lst.remove(label_2000_lst[other_index_2000])
 values_2000_lst.remove(values_2000_lst[other_index_2000])
 
-# finding an removing other in the list 
+# finding an removing other in the list for 2022
 other_index_2022 = finding_index('Other', label_2022_lst)
 label_2022_lst.remove(label_2022_lst[other_index_2022])
 values_2022_lst.remove(values_2022_lst[other_index_2022])
 
+# creating a bar chart with two bars for each country, one for 2000 and one for 2022
 bar_fig = go.Figure(data=[
     go.Bar(name='2000', x=label_2000_lst, y=values_2000_lst),
     go.Bar(name='2022', x=label_2022_lst, y=values_2022_lst)
@@ -158,9 +189,10 @@ bar_fig.update_layout(barmode='group',
                       yaxis=dict(tickvals = [100000000000, 200000000000, 300000000000, 400000000000, 500000000000],
                                              ticktext = [100, 200, 300, 400, 500]),
 )
-
+# creating an outline around each bar
 bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
 
+############################################################################################################
 # Defining layout for Page 2 with a bar chart
 layout = html.Div([
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
@@ -174,13 +206,19 @@ layout = html.Div([
         # Setting the format for the line chart
         dcc.Graph(figure=scatter_fig,
             id='scatter-chart',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'left','margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 'backgroundColor': '#000000'}       
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'left',
+                   'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
+                   'backgroundColor': '#000000'}       
         ),
-
         # Setting the format for the bar chart
         dcc.Graph(figure=bar_fig,
             id='bar-chart',
-            style={'border': '1px solid black', 'height': '375px', 'width': '49%', 'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 'backgroundColor': '#000000'}
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '49%', 
+                   'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
+                   'backgroundColor': '#000000'}
         ),
     ]),
 ])
