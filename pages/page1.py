@@ -107,7 +107,7 @@ def update_charts(selected_year):
     map_fig = px.choropleth(
         filtered_df,
         locations='Code',
-        color=np.log(df['GDP (USD)']),
+        color=np.log(filtered_df['GDP (USD)']),
         hover_name='Country',
         color_continuous_scale='reds',
         projection='orthographic',
