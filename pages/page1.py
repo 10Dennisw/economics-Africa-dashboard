@@ -12,7 +12,8 @@ import numpy as np
 dash.register_page(__name__, path='/', name="Evolution of African GDP: Overview")
 
 # loading the data
-df = pd.read_csv(r"C:\Users\denni\OneDrive\Desktop\african-economics-dashboard\africa_economics_v2.csv")
+url = "https://raw.githubusercontent.com/10Dennisw/visualisations/master/africa_economics_v2.csv"
+df = pd.read_csv(url)
 
 # defining the layout of the page
 layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0'}, children=[
@@ -106,13 +107,13 @@ def update_charts(selected_year):
     map_fig = px.choropleth(
         filtered_df,
         locations='Code',
-        color='GDP_log_column',
+        color=np.log(df['GDP (USD)']),
         hover_name='Country',
         color_continuous_scale='reds',
         projection='orthographic',
         title='',
         template='plotly',
-        range_color=[min(df['GDP_log_column']), max(df['GDP_log_column'])]
+        range_color=[min(np.log(df['GDP (USD)'])), max(np.log(df['GDP (USD)']))]
     )
 
     # defining the featured of the additional layer for the second map with population bubbles
