@@ -16,7 +16,7 @@ url = "https://raw.githubusercontent.com/10Dennisw/visualisations/master/africa_
 df = pd.read_csv(url)
 
 # defining the layout of the page
-layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0'}, children=[
+layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
     # creating a slider for each year, allowing the user to select a year to filter on
     dcc.Slider(
         id='year-slider',
@@ -35,7 +35,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
             id='world-map',
             # defining the style of figure
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'left',
                    'margin-left': '5px', 'margin-right': '10px','margin-top': '2px', 'margin-bottom': '5px', 
                    'backgroundColor': '#000000'}
@@ -46,7 +46,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
             id='world-map-with-population',
             # defining the style of figure
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'right', 'margin-top': '2px', 'margin-right': '5px', 'margin-bottom': '5px', 
                    'backgroundColor': '#000000'}
         ),
@@ -58,7 +58,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         dcc.Graph(
             id='gdp-bar-chart',
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'left',
                    'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}       
@@ -68,7 +68,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         dcc.Graph(
             id='gdp-pie-chart',
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'right', 
                    'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}

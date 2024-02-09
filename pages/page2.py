@@ -88,8 +88,8 @@ pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022<
 pie_fig.update_layout(annotations=[
     dict(
         text="<b>2000</b>",
-        x=0.17,
-        y=1.05,
+        x=0.18,
+        y=1.15,
         xref="paper",
         yref="paper",
         font=dict(size=12),
@@ -97,8 +97,8 @@ pie_fig.update_layout(annotations=[
     ),
     dict(
         text="<b>2022</b>",
-        x=0.83,
-        y=1.05,
+        x=0.81,
+        y=1.15,
         xref="paper",
         yref="paper",
         font=dict(size=12),
@@ -199,7 +199,9 @@ layout = html.Div([
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
         dcc.Graph(figure=pie_fig,
                 id='african-gdp-graph',
-                style={'border': '1px solid black', 'height': '375px', 'width': '100%', 'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 'backgroundColor': '#000000'},
+                style={'border': '1px solid black', 'height': '375px', 'width': '990px', 
+                       'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 
+                       'backgroundColor': '#000000'},
                 )
     ]),
 
@@ -208,7 +210,7 @@ layout = html.Div([
         dcc.Graph(figure=scatter_fig,
             id='scatter-chart',
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'left',
                    'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}       
@@ -217,7 +219,7 @@ layout = html.Div([
         dcc.Graph(figure=bar_fig,
             id='bar-chart',
             style={'border': '1px solid black', 
-                   'height': '375px', 'width': '49%', 
+                   'height': '375px', 'width': '490px', 
                    'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}
         ),

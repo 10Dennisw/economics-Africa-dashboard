@@ -21,7 +21,7 @@ filtered_df_map=df[df['Year']==2000]
 
 ############################################################################################################
 # Defining layout for Page 3 with a bar chart
-layout = html.Div([
+layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
     dcc.Slider(
         id='year-slider-page-three',
         min=df['Year'].min(),

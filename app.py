@@ -14,10 +14,11 @@ app = dash.Dash(__name__, pages_folder='pages', use_pages=True, external_stylesh
 # defining the layout of  the web app
 app.layout = html.Div([
 	html.Br(),
-	html.P('African GDP Multi Page Web App', className="text-dark text-center fw-bold fs-1"),
+	html.P('African GDP Multi Page Web App', className="text-dark text-center fw-bold fs-1", style={'width':'1000px'}),
     html.Div(children=[
 	    dcc.Link(page['name'], href=page["relative_path"], className="btn btn-dark m-2 fs-5")\
-			  for page in dash.page_registry.values()]
+			  for page in dash.page_registry.values()], 
+			  style={'width': '1000px', 'margin': 'left'} # setting width of the page links
 	),
 	dash.page_container
 ], className="col-8 mx-auto")
