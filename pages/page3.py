@@ -33,8 +33,11 @@ layout = html.Div([
 
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
         dcc.Graph(
-                  id='gdp-per-capita-graph',
-                style={'border': '1px solid black', 'height': '375px', 'width': '100%', 'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 'backgroundColor': '#000000'},
+            id='gdp-per-capita-graph',
+            style={'border': '1px solid black', 
+                   'height': '375px', 'width': '100%', 
+                   'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 
+                   'backgroundColor': '#000000'},
                 )
     ]),
 
@@ -70,6 +73,9 @@ def update_charts(selected_year):
     # filter the df based upon the year selected by the user on the slider
     filtered_df = df.loc[df['Year'] == selected_year]
 
+    ############################################################################################################
+    # Creating Map Figure
+
     map_fig = px.choropleth(
     filtered_df_map,
     locations='Code',
@@ -77,14 +83,36 @@ def update_charts(selected_year):
     hover_name='Country',
     color_continuous_scale='reds',
     projection='orthographic',
-    title=f'<b>Map of GDP per Capita in {selected_year}</b>',
+    title=f'<b>Map of the Logarithm of GDP per Capita in {selected_year}</b>',
     template='plotly',
     range_color=[min(np.log(filtered_df['GDP per Capita'])), max(np.log(filtered_df['GDP per Capita']))]
     )
 
-    # setting the title to be in the middle of the figure
-    map_fig.update_layout(title_x=0.5)
-    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) # setting the map to focus on Africa
+    # Setting the layout of the map and customising the appearance
+    map_fig.update_layout(geo=dict(showframe=False,
+                                   showcoastlines=True,
+                                    showcountries=True,
+                                    countrycolor="#d1d1d1",
+                                    showocean=True,
+                                    oceancolor="#c9d2e0",
+                                    showlakes=True,
+                                    lakecolor="#99c0db",
+                                    showrivers=True,
+                                    rivercolor="#99c0db",
+                                    resolution=110
+                                    ),
+        coloraxis_colorbar=dict(title="GDP (log)"), # the colour is denotated by the logarithm of the GDP
+        paper_bgcolor = "white",
+        font=dict(color="black"),
+        margin=dict(l=20, r=20, t=40, b=10),
+        title_x=0.5 # setting the title to be in the middle of the figure
+        )
+    
+    # setting the border line width
+    map_fig.update_traces(marker=dict(line={"color": "black", "width": 1.5}))
+    
+    # setting the map to focus on Africa
+    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) 
 
     ############################################################################################################
     # Creating Histogram figure
@@ -93,14 +121,17 @@ def update_charts(selected_year):
                             nbins=50, 
                             title=f'<b>Top 10 Economies (GDP per Capita) in {selected_year}</b>', 
                             labels={'GDP per Capita': 'GDP per Capita', 'count': 'Frequency'})
+    
+    # adding a black outline around the each bar of the histogram
+    hist_fig.update_traces(marker_line_color='black', marker_line_width=1.5)
 
     hist_fig.update_layout(title_x=0.5) # setting the title to be in the middle of the figure
 
     ############################################################################################################
     # Creating bar chart
 
-    # defining average value
-    average_val = filtered_df['GDP per Capita'].mean()
+    # defining average value through the median due to outliers
+    average_val = filtered_df['GDP per Capita'].median()
     # filtering and sorting the dataframe to show the top 10 values in order
     top_10 = filtered_df.nlargest(10, 'GDP per Capita')
     top_10 = top_10.sort_values(by=['GDP per Capita'], ascending=True)
@@ -134,5 +165,7 @@ def update_charts(selected_year):
         yaxis=dict(title='Country'),
         xaxis=dict(title='GDP per Capita'),
     )
+
+    bar_fig.update_traces(marker_line_color='black', marker_line_width=1.5)
 
     return map_fig, hist_fig, bar_fig
