@@ -166,6 +166,20 @@ def update_charts(selected_year):
         xaxis=dict(title='GDP per Capita'),
     )
 
+    # adding black outline around each bar
     bar_fig.update_traces(marker_line_color='black', marker_line_width=1.5)
+
+    # adding annotation for medium line
+    bar_fig.add_annotation(dict(font=dict(color='black',size=10),
+                                x=0.1,
+                                y=1.08,
+                                showarrow=False,
+                                text="<b>Medium GDP per Capita of African Economies</b>",
+                                textangle=0,
+                                xanchor='left',
+                                xref="paper",
+                                yref="paper"
+                                )
+                            )
 
     return map_fig, hist_fig, bar_fig
