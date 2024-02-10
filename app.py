@@ -18,10 +18,10 @@ app.layout = html.Div([
     html.Div(children=[
 	    dcc.Link(page['name'], href=page["relative_path"], className="btn btn-dark m-2 fs-5")\
 			  for page in dash.page_registry.values()], 
-			  style={'width': '1000px', 'margin': 'left'} # setting width of the page links
+			  style={'width': '1000px', 'margin': 'auto'} # setting width of the page links
 	),
 	dash.page_container
-], className="col-8 mx-auto")
+], style={'margin-left': '0', 'margin-right': '0', 'width': '1000px', 'padding': '0', 'margin': '0 auto'})
 
 # running the code when the python script is ran
 if __name__ == '__main__':

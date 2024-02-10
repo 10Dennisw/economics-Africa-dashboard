@@ -196,7 +196,7 @@ bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
 ############################################################################################################
 # Defining layout for Page 2 with a bar chart
 layout = html.Div([
-    html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
+    html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
         dcc.Graph(figure=pie_fig,
                 id='african-gdp-graph',
                 style={'border': '1px solid black', 'height': '375px', 'width': '990px', 
@@ -205,7 +205,7 @@ layout = html.Div([
                 )
     ]),
 
-    html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[   
+    html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[ 
         # Setting the format for the line chart
         dcc.Graph(figure=scatter_fig,
             id='scatter-chart',
