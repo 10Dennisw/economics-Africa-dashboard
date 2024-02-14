@@ -17,16 +17,21 @@ df = pd.read_csv(url)
 
 # defining the layout of the page
 layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
-    # creating a slider for each year, allowing the user to select a year to filter on
-    dcc.Slider(
-        id='year-slider',
-        min=df['Year'].min(),  
-        max=df['Year'].max(),  
-        value=df['Year'].min(), # setting the default value
-        marks={str(year): str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)},
-        step=1, # setting each step as one year
-    ), 
-
+    html.Div(style={'backgroundColor': 'white', 'width': '990px', 'border': '2px solid black', 'margin-left': '5px', 'margin-right': '5px'}, children=[
+        html.B('Select Year to Filter On:', className = 'fix_label', style = {'color': 'black', 'paddingLeft': '20px'}),
+        # creating a slider for each year, allowing the user to select a year to filter on
+        dcc.Slider(
+            id='year-slider',
+            min=df['Year'].min(),  
+            max=df['Year'].max(),  
+            value=df['Year'].min(), # setting the default value
+            marks={
+                str(year): {'label': str(year), 'style': {'color': 'black'}}  # Setting label color to black
+                for year in range(df['Year'].min(), df['Year'].max() + 1)
+                },
+            step=1, # setting each step as one year
+        ), 
+    ]),
     # Creating a 2 maps to be side by side - using 49% width.
     # The first map is just a chloropleth map, while the second map has an additional layer above, showing the population
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
@@ -34,10 +39,10 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         dcc.Graph(
             id='world-map',
             # defining the style of figure
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
                    'float': 'left',
-                   'margin-left': '5px', 'margin-right': '10px','margin-top': '2px', 'margin-bottom': '5px', 
+                   'margin-left': '5px', 'margin-right': '10px','margin-top': '10px', 'margin-bottom': '5px', 
                    'backgroundColor': '#000000'}
         ),
         
@@ -45,9 +50,9 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         dcc.Graph(
             id='world-map-with-population',
             # defining the style of figure
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
-                   'float': 'right', 'margin-top': '2px', 'margin-right': '5px', 'margin-bottom': '5px', 
+                   'float': 'right', 'margin-top': '10px', 'margin-right': '5px', 'margin-bottom': '5px', 
                    'backgroundColor': '#000000'}
         ),
     ]),
@@ -57,7 +62,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         # Setting the format for the bar chart
         dcc.Graph(
             id='gdp-bar-chart',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
                    'float': 'left',
                    'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
@@ -67,7 +72,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         # Setting the format for the pie chart
         dcc.Graph(
             id='gdp-pie-chart',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
                    'float': 'right', 
                    'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
@@ -104,12 +109,17 @@ def update_charts(selected_year):
         'Other': 'rgb(255, 255, 0)'
         }
 
+    ############################################################################################################
+    # MAP CHARTS
+    
     # defining the features of the choropleth Map
     map_fig = px.choropleth(
         filtered_df,
         locations='Code',
         color=np.log(filtered_df['GDP (USD)']),
         hover_name='Country',
+        hover_data={'Code': False, 'GDP (USD)': ':,'},
+        custom_data=[filtered_df['GDP (USD)']],
         color_continuous_scale='reds',
         projection='orthographic',
         title='',
@@ -123,46 +133,13 @@ def update_charts(selected_year):
         locations='Code',  
         size='Population',  
         hover_name='Country',
+        hover_data={'Code': False, 'GDP (USD)': ':,', 'Population': ':,'},
         projection='orthographic',
         title='',
         template='plotly',
         opacity=0.5
     )
-
-    # creating as new df to get top five values of GDP
-    top_five_df = filtered_df.sort_values(by='GDP (USD)', ascending=False).head(5)
-
-    # defining the features of the bar chart Map
-    bar_fig = px.bar(
-        top_five_df,
-        x='Country',
-        y='GDP (USD)',
-        title=f'<b>Largest 5 African Economies in {selected_year}</b>',
-        labels={'GDP (USD)': 'GDP (USD in Billions)'},
-        color='Country', # introducing colour to have different colour based upon country
-        color_discrete_map=country_colours # setting it to country colour dictionairy
-    )
-
-    # rotating the angle of the x-axis labels to 25 degrees
-    bar_fig.update_layout(xaxis_tickangle=25)
-    # Addinga black outline of each bar
-    bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
     
-    # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies combined 
-    pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
-    top5_indices = pie_df['GDP (USD)'].nlargest(5).index
-    pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
-
-    # Features of the pie chart
-    pie_fig = px.pie(
-        pie_df,
-        names='Country',
-        values='GDP (USD)',
-        title=f'<b>African GDP Distribution in {selected_year}</b>',
-        color='Country', # introducing colour to have different colour based upon country
-        color_discrete_map=country_colours # setting it to country colour dictionairy
-    )
-
     # customising the appearance and marker traces in both map figures
     map_fig.update_traces(marker=dict(line={"color": "black", "width": 1.5}))
 
@@ -194,6 +171,28 @@ def update_charts(selected_year):
     map_fig_with_population.update_layout(title_text="<b>Map of GDP (log) with Population Bubbles</b>",
                                           title_x=0.5)
 
+    ############################################################################################################
+    # BAR CHART
+    
+    # creating as new df to get top five values of GDP
+    top_five_df = filtered_df.sort_values(by='GDP (USD)', ascending=False).head(5)
+
+    # defining the features of the bar chart Map
+    bar_fig = px.bar(
+        top_five_df,
+        x='Country',
+        y='GDP (USD)',
+        title=f'<b>Largest 5 African Economies in {selected_year}</b>',
+        labels={'GDP (USD)': 'GDP (USD in Billions)'},
+        hover_data={'GDP (USD)': ':,', 'Population': ':,'},
+        color='Country', # introducing colour to have different colour based upon country
+        color_discrete_map=country_colours # setting it to country colour dictionairy
+    )
+
+    # rotating the angle of the x-axis labels to 25 degrees
+    bar_fig.update_layout(xaxis_tickangle=25)
+    # Addinga black outline of each bar
+    bar_fig.update_traces(marker_line_color='black', marker_line_width=2)
     # updating the layout for the bar charts
     bar_fig.update_layout(
         paper_bgcolor = "white",
@@ -205,6 +204,24 @@ def update_charts(selected_year):
                    ticktext = [100, 200, 300, 400, 500, 600],
                    range=[0, 600000000000]),
         legend_title_text='Country'
+    )
+
+    
+    ############################################################################################################
+    # PIE CHART
+    # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies combined 
+    pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
+    top5_indices = pie_df['GDP (USD)'].nlargest(5).index
+    pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
+
+    # Features of the pie chart
+    pie_fig = px.pie(
+        pie_df,
+        names='Country',
+        values='GDP (USD)',
+        title=f'<b>African GDP Distribution in {selected_year}</b>',
+        color='Country', # introducing colour to have different colour based upon country
+        color_discrete_map=country_colours # setting it to country colour dictionairy
     )
 
     # Setting the layout for the pie chart
