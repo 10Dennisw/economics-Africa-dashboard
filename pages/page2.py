@@ -60,9 +60,19 @@ def getting_labels_and_values(filtered_df):
 
     return label_lst, values_lst
 
+def retrieving_scaled_values(values_lst):
+    values_scaled_lst = []
+    for val in values_lst:
+        values_scaled_lst.append(round(val/1000000000,2))
+    return values_scaled_lst
+
+
 # calling functions
 label_2000_lst, values_2000_lst = getting_labels_and_values(filtered_2000)
 label_2022_lst, values_2022_lst = getting_labels_and_values(filtered_2022)
+
+values_2000_scaled_lst = retrieving_scaled_values(values_2000_lst)
+values_2022_scaled_lst = retrieving_scaled_values(values_2022_lst)
 
 # creating a subplot
 pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]])
@@ -70,15 +80,20 @@ pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]])
 pie_fig.add_trace(go.Pie(labels=label_2000_lst, 
                      values=values_2000_lst, 
                      scalegroup='one',
-                     name="African GDP 2000",
-                     marker=dict(colors=[country_colours[label] for label in label_2000_lst])), 
+                     name="",
+                     marker=dict(colors=[country_colours[label] for label in label_2000_lst]),
+                     customdata=values_2000_scaled_lst,
+                     hovertemplate = "%{label}: %{customdata} Billion USD"
+                     ), 
                      1, 1)
 # adding the figure on the right
 pie_fig.add_trace(go.Pie(labels=label_2022_lst, 
                      values=values_2022_lst, 
                      scalegroup='one',
                      name="African GDP 2022",
-                     marker=dict(colors=[country_colours[label] for label in label_2022_lst])), 
+                     marker=dict(colors=[country_colours[label] for label in label_2022_lst]),
+                     customdata=values_2022_scaled_lst,
+                     hovertemplate = "%{label}: %{customdata} Billion USD"), 
                      1, 2)
 # creating header for the subplot
 pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022</b>",
@@ -87,8 +102,8 @@ pie_fig.update_layout(title_text="<b>Evolution of African GDP from 2000 to 2022<
 # updating text on the subplot to make the figure easier to understand for the user
 pie_fig.update_layout(annotations=[
     dict(
-        text="<b>2000</b>",
-        x=0.18,
+        text=f"<b>GDP in 2000, Total: {sum(values_2000_scaled_lst)} Billion USD</b>",
+        x=0.05,
         y=1.15,
         xref="paper",
         yref="paper",
@@ -96,8 +111,8 @@ pie_fig.update_layout(annotations=[
         showarrow=False
     ),
     dict(
-        text="<b>2022</b>",
-        x=0.81,
+        text=f"<b>GDP in 2022, Total: {round(sum(values_2022_scaled_lst),2)} Billion USD</b>",
+        x=1,
         y=1.15,
         xref="paper",
         yref="paper",
@@ -187,6 +202,7 @@ bar_fig = go.Figure(data=[
 bar_fig.update_layout(barmode='group',
                       title="<b>GDP Comparison: 2000 to 2022</b>",
                       font=dict(family="Arial", color='black'),
+                      title_x=0.5, # setting header in the middle
                       yaxis=dict(tickvals = [100000000000, 200000000000, 300000000000, 400000000000, 500000000000],
                                              ticktext = [100, 200, 300, 400, 500]),
 )
@@ -199,8 +215,8 @@ layout = html.Div([
     html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
         dcc.Graph(figure=pie_fig,
                 id='african-gdp-graph',
-                style={'border': '1px solid black', 'height': '375px', 'width': '990px', 
-                       'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 
+                style={'border': '2px solid black', 'height': '375px', 'width': '990px', 
+                       'margin-left': '5px', 'margin-right': '5px', 'margin-top': '2px', 'margin-bottom': '1px', 
                        'backgroundColor': '#000000'},
                 )
     ]),
@@ -209,7 +225,7 @@ layout = html.Div([
         # Setting the format for the line chart
         dcc.Graph(figure=scatter_fig,
             id='scatter-chart',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
                    'float': 'left',
                    'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
@@ -218,7 +234,7 @@ layout = html.Div([
         # Setting the format for the bar chart
         dcc.Graph(figure=bar_fig,
             id='bar-chart',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '490px', 
                    'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}

@@ -22,19 +22,24 @@ filtered_df_map=df[df['Year']==2000]
 ############################################################################################################
 # Defining layout for Page 3 with a bar chart
 layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin': '0', 'width': '1000px'}, children=[
-    dcc.Slider(
-        id='year-slider-page-three',
-        min=df['Year'].min(),
-        max=df['Year'].max(),
-        value=df['Year'].min(), # setting the default value
-        marks={str(year): str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)},
-        step=1
-    ),
-
+    html.Div(style={'backgroundColor': 'white', 'width': '990px', 'border': '2px solid black', 'margin-left': '5px', 'margin-right': '5px'}, children=[
+        html.B('Select Year to Filter On:', className = 'fix_label', style = {'color': 'black', 'paddingLeft': '20px'}),
+        dcc.Slider(
+            id='year-slider-page-three',
+            min=df['Year'].min(),
+            max=df['Year'].max(),
+            value=df['Year'].min(), # setting the default value
+            marks={
+                str(year): {'label': str(year), 'style': {'color': 'black'}}  # Setting label color to black
+                for year in range(df['Year'].min(), df['Year'].max() + 1)
+                },
+            step=1
+        ),
+    ]),
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[
         dcc.Graph(
             id='gdp-per-capita-graph',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '100%', 
                    'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'},
@@ -44,7 +49,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
     html.Div(style={'display': 'flex', 'backgroundColor': 'white'}, children=[   
         # Setting the format for the line chart
         dcc.Graph(id='histogram-chart',
-                  style={'border': '1px solid black', 
+                  style={'border': '2px solid black', 
                          'height': '375px', 'width': '49%', 
                          'float': 'left',
                          'margin-left': '5px', 'margin-right': '10px','margin-top': '5px', 'margin-bottom': '1px', 
@@ -52,7 +57,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
         ),
         # Setting the format for the bar chart
         dcc.Graph(id='bar-chart',
-            style={'border': '1px solid black', 
+            style={'border': '2px solid black', 
                    'height': '375px', 'width': '49%', 
                    'float': 'right', 'margin-top': '5px', 'margin-right': '5px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'}
@@ -81,6 +86,7 @@ def update_charts(selected_year):
     locations='Code',
     color= np.log(filtered_df['GDP per Capita']),
     hover_name='Country',
+    hover_data={'Code': False, 'GDP per Capita': ':,.2f'},
     color_continuous_scale='reds',
     projection='orthographic',
     title=f'<b>Map of the Logarithm of GDP per Capita in {selected_year}</b>',
@@ -125,7 +131,9 @@ def update_charts(selected_year):
     # adding a black outline around the each bar of the histogram
     hist_fig.update_traces(marker_line_color='black', marker_line_width=1.5)
 
-    hist_fig.update_layout(title_x=0.5) # setting the title to be in the middle of the figure
+    hist_fig.update_layout(title_x=0.5, # setting the title to be in the middle of the figure
+                           font=dict(color="black")
+                           )
 
     ############################################################################################################
     # Creating bar chart
@@ -164,6 +172,7 @@ def update_charts(selected_year):
         title_x=0.5,
         yaxis=dict(title='Country'),
         xaxis=dict(title='GDP per Capita'),
+        font=dict(color="black")
     )
 
     # adding black outline around each bar
