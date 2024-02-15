@@ -4,6 +4,7 @@ from dash import dcc, html, callback
 from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import copy
 from plotly.subplots import make_subplots
 import numpy as np
@@ -209,20 +210,67 @@ def update_charts(selected_year):
     
     ############################################################################################################
     # PIE CHART
+
+    # function for getting the labels and values for the pie chart
+    def getting_labels_and_values(filtered_df):
+        ''' 
+        Function to retrieve the largest economies in the df and retrieve the values, 
+        setting other economies not in the Top 5 to other
+        Input arguments: dataframe
+        Returns list of labels and values
+        '''
+        pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False) # sorting values
+        top5_indices = pie_df['GDP (USD)'].nlargest(5).index # getting index for top 5 largest
+        pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
+
+        pie_df = pie_df.groupby('Country').sum().reset_index() # grouping the df by country/ economy
+
+        # creating empty lists
+        label_lst = []
+        values_lst = []
+
+        # iterating through df and appending label and value to list
+        for i, r in pie_df.iterrows():
+            country = r['Country']
+            GDP = r['GDP (USD)']
+            label_lst.append(country)
+            values_lst.append(GDP)
+
+        return label_lst, values_lst
+
     # Sorting and filtering the filtered dataframe to show 6 values, largest 5 economies and the other economies combined 
     pie_df = filtered_df.sort_values(by='GDP (USD)', ascending=False)
     top5_indices = pie_df['GDP (USD)'].nlargest(5).index
     pie_df.loc[~pie_df.index.isin(top5_indices), 'Country'] = 'Other' #setting countries not in top5_indices to 'Other'
 
+    grouped_df = pie_df.groupby('Country').agg({
+        'GDP (USD)': 'sum',
+        'Population': 'sum'
+    }).reset_index()
+    grouped_df
+
+    label_lst, valueslst = getting_labels_and_values(pie_df)
+
+    text_lst = []
+    for value in valueslst:
+        text_lst.append(round(value/10**10,2))
+
+    population_lst = []
+    for i, r in grouped_df.iterrows():
+        population_lst.append(r['Population'])
+
+
     # Features of the pie chart
-    pie_fig = px.pie(
-        pie_df,
-        names='Country',
-        values='GDP (USD)',
-        title=f'<b>African GDP Distribution in {selected_year}</b>',
-        color='Country', # introducing colour to have different colour based upon country
-        color_discrete_map=country_colours # setting it to country colour dictionairy
-    )
+    pie_fig = go.Figure(go.Pie(
+        name = "",
+        values = valueslst,
+        labels = label_lst,
+        text = text_lst,
+        marker=dict(colors=[country_colours[label] for label in label_lst]),
+        hovertemplate = "%{label}: %{text} Billion USD<br>Population: %{customdata:,}",
+        textinfo='percent',
+        customdata=population_lst
+    ))
 
     # Setting the layout for the pie chart
     pie_fig.update_layout(
@@ -230,13 +278,16 @@ def update_charts(selected_year):
         font=dict(color="black"),
         title=dict(x=0.5),
         margin=dict(l=30, r=30, t=60, b=60),
-        legend_title_text='Country' # setting the legend title
     )
+
+    pie_fig.update_layout(title_text=f'<b>African GDP Distribution in {selected_year}</b>',
+                          title=dict(x=0.5),
+                          font=dict(color="black")
+                          )
 
     # Adding a black outline around each section of the piece, and setting the width to black
     pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
-                          insidetextfont=dict(color='black', family="Arial", size=16),
-    )                   
+                        insidetextfont=dict(color='black', family="Arial", size=12)) 
 
     # returning the map figure and bar chart
     return map_fig, map_fig_with_population, bar_fig, pie_fig
