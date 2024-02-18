@@ -15,7 +15,7 @@ dash.register_page(__name__, path='/Page3', name="Africa: GDP per Capita")
 
 ############################################################################################################
 # Loading data
-url = "https://raw.githubusercontent.com/10Dennisw/visualisations/master/africa_economics_v2.csv"
+url = r"C:\Users\denni\OneDrive\Desktop\economics-dashboard\africa_economics_v2.csv"
 df = pd.read_csv(url)
 filtered_df_map=df[df['Year']==2000]
 

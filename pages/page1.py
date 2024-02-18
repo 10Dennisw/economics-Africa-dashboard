@@ -13,7 +13,7 @@ import numpy as np
 dash.register_page(__name__, path='/', name="Evolution of African GDP: Overview")
 
 # loading the data
-url = "https://raw.githubusercontent.com/10Dennisw/visualisations/master/africa_economics_v2.csv"
+url = r"C:\Users\denni\OneDrive\Desktop\economics-dashboard\africa_economics_v2.csv"
 df = pd.read_csv(url)
 
 # defining the layout of the page
@@ -164,7 +164,8 @@ def update_charts(selected_year):
     )
     
     # working on map figures
-    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) # setting the map to focus on Africa
+    map_fig.update_geos(projection_rotation=dict(lon=17, lat=2)) # setting the map to focus on Africa
+    map_fig.update_geos(projection_scale=1.43)  # updating zoom
     map_fig2= copy.deepcopy(map_fig) # creating a deepcopy of the map to avoid changes being updated to both maps
     map_fig.update_layout(title_text="<b>Chloropleth Map of GDP (log)</b>",
                           title_x=0.5)
