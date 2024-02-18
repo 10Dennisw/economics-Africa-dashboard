@@ -13,7 +13,7 @@ import numpy as np
 dash.register_page(__name__, path='/', name="Evolution of African GDP: Overview")
 
 # loading the data
-url = r"C:\Users\denni\OneDrive\Desktop\economics-dashboard\africa_economics_v2.csv"
+url = "https://github.com/10Dennisw/economics-africa-dashboard/raw/master/africa_economics_v2.csv"
 df = pd.read_csv(url)
 
 # defining the layout of the page

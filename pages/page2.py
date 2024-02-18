@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 dash.register_page(__name__, path='/Page2', name="Africa's Top 5 Economies: Comparison between 2000 to 2022")
 
 # loading the data
-url = r"C:\Users\denni\OneDrive\Desktop\economics-dashboard\africa_economics_v2.csv"
+url = "https://github.com/10Dennisw/economics-africa-dashboard/raw/master/africa_economics_v2.csv"
 df = pd.read_csv(url)
 
 # filtering the dataframe to 2000, and 2022
