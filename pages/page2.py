@@ -74,6 +74,8 @@ label_2022_lst, values_2022_lst = getting_labels_and_values(filtered_2022)
 values_2000_scaled_lst = retrieving_scaled_values(values_2000_lst)
 values_2022_scaled_lst = retrieving_scaled_values(values_2022_lst)
 
+percentage_change = round(((sum(values_2022_scaled_lst) - sum(values_2000_scaled_lst)) / sum(values_2000_scaled_lst)) * 100, 2)
+
 # creating a subplot
 pie_fig = make_subplots(1, 2, specs=[[{'type':'domain'}, {'type':'domain'}]])
 # adding the figure on the left
@@ -128,6 +130,18 @@ pie_fig.update_layout(annotations=[
         y=-0.15,
         font=dict(size=12)
     ),
+    dict(
+        text=f"<b>From 2000 to 2022,<br>the GDP of Africa<br>increased by {round(((sum(values_2022_scaled_lst) - sum(values_2000_scaled_lst)) / sum(values_2000_scaled_lst)) * 100, 2)}%</b>",
+        x=-0.2,
+        y=0.9,
+        xref="paper",
+        yref="paper",
+        font=dict(size=12),
+        showarrow=False,
+        bgcolor="white",  
+        bordercolor="black",  
+        borderwidth=1   
+    )
 ])
 # formating the traces to increase readability for the user
 pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),

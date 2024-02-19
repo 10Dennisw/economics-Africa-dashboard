@@ -166,12 +166,47 @@ def update_charts(selected_year):
     # working on map figures
     map_fig.update_geos(projection_rotation=dict(lon=17, lat=2)) # setting the map to focus on Africa
     map_fig.update_geos(projection_scale=1.43)  # updating zoom
+
     map_fig2= copy.deepcopy(map_fig) # creating a deepcopy of the map to avoid changes being updated to both maps
+    
     map_fig.update_layout(title_text="<b>Chloropleth Map of GDP (log)</b>",
                           title_x=0.5)
+    
+    map_fig.add_annotation(
+        text="<b>As the year increases,<br>watch the shade of red<br>increase as Africa's<br>economies grow larger</b>",
+        xref="paper", 
+        yref="paper",
+        x=0.18,  
+        y=0.25,  
+        showarrow=False, 
+        font=dict(size=12),  
+        align="center",  
+        xanchor="center", 
+        yanchor="bottom" ,
+        bgcolor="white",  
+        bordercolor="black",  
+        borderwidth=1   
+    )
+
     map_fig_with_population = map_fig2.add_trace(scattergeo_fig.data[0]) # adding the population bubbles to the chloropleth map
     map_fig_with_population.update_layout(title_text="<b>Map of GDP (log) with Population Bubbles</b>",
                                           title_x=0.5)
+    
+    map_fig_with_population.add_annotation(
+        text="<b>Nigeria is Africa's<br>most populous<br>economy</b>",
+        x=0.36,  # Adjusted longitude for Nigeria
+        y=0.54,  # Adjusted latitude for Nigeria
+        showarrow=True,
+        arrowhead=1,
+        arrowcolor="black",
+        arrowwidth=2,
+        ax=-55,
+        ay=100,
+        font=dict(size=12),
+        bgcolor="white",  
+        bordercolor="black",  
+        borderwidth=1  
+    )
 
     ############################################################################################################
     # BAR CHART
@@ -206,6 +241,22 @@ def update_charts(selected_year):
                    ticktext = [100, 200, 300, 400, 500, 600],
                    range=[0, 600000000000]),
         legend_title_text='Country'
+    )
+
+    bar_fig.add_annotation(
+        text="<b>As the year increases,<br>watch the bars of<br>Africa's largest five<br>economies grow taller</b>",
+        xref="paper", 
+        yref="paper",
+        x=0.7,  
+        y=0.8 ,  
+        showarrow=False, 
+        font=dict(size=12),  
+        align="center",  
+        xanchor="center", 
+        yanchor="bottom" ,
+        bgcolor="white",  
+        bordercolor="black",  
+        borderwidth=1   
     )
 
     
@@ -289,6 +340,29 @@ def update_charts(selected_year):
     # Adding a black outline around each section of the piece, and setting the width to black
     pie_fig.update_traces(marker=dict(line=dict(color='black', width=2)),
                         insidetextfont=dict(color='black', family="Arial", size=12)) 
+    
+    if selected_year == 2000:
+        SA_pop = filtered_df[filtered_df['Country'] == 'South Africa']['Population'].iloc[0]
+        total_population = filtered_df['Population'].sum()
+
+        SA_gdp = filtered_df[filtered_df['Country'] == 'South Africa']['GDP (USD)'].iloc[0]
+        total_gdp = filtered_df['GDP (USD)'].sum()
+
+        pie_fig.add_annotation(
+            text=f"<b>Despite having {round((SA_pop/total_population)*100,2)}%<br>of Africa's recorded<br>population, it has<br>{round((SA_gdp/total_gdp)*100,2)}% of Africa's<br>total GDP</b>",
+            xref="paper", 
+            yref="paper",
+            x=1.15,  
+            y=0.05,  
+            showarrow=False, 
+            font=dict(size=12),  
+            align="center",  
+            xanchor="center", 
+            yanchor="bottom" ,
+            bgcolor="white",  
+            bordercolor="black",  
+            borderwidth=1   
+        )
 
     # returning the map figure and bar chart
     return map_fig, map_fig_with_population, bar_fig, pie_fig

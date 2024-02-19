@@ -119,6 +119,49 @@ def update_charts(selected_year):
     
     # setting the map to focus on Africa
     map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) 
+    map_fig.update_geos(projection_scale=1.43)  # updating zoom 
+
+    map_fig.add_trace(go.Scattergeo(
+        lon=[55.4920],  # Longitude for Seychelles 
+        lat=[-4.6796],  # Latitude for Seychelles
+        mode='markers',
+        marker=dict(
+            size=10,
+            color='rgba(255, 0, 0, 0)',
+            line=dict(width=1, color='black')
+        ),
+        name='Seychelles',
+        showlegend=False
+    ))
+
+    map_fig.add_trace(go.Scattergeo(
+        lon=[57.5522],  # Longitude for Mauritius
+        lat=[-20.3484],  # Latitude for Mauritius
+        mode='markers',
+        marker=dict(
+            size=10,
+            color='rgba(255, 0, 0, 0)', 
+            line=dict(width=1, color='black')
+        ),
+        name='Mauritius',
+        showlegend=False
+    ))
+
+    map_fig.add_annotation(
+        text="<b>Equitorial Guinea</b>",
+        x=0.46,  # Adjusted longitude for Nigeria
+        y=0.52,  # Adjusted latitude for Nigeria
+        showarrow=True,
+        arrowhead=1,
+        arrowcolor="black",
+        arrowwidth=2,
+        ax=-200,
+        ay=0,
+        font=dict(size=12),
+        bgcolor="white",  
+        bordercolor="black",  
+        borderwidth=1  
+    )
 
     ############################################################################################################
     # Creating Histogram figure
@@ -155,7 +198,7 @@ def update_charts(selected_year):
     bar_fig.add_shape(
         type="line",
         x0=average_val,
-        y0=0,
+        y0=-0.4,
         x1=average_val,
         y1=len(top_10),
         line=dict(
