@@ -41,7 +41,7 @@ layout = html.Div(style={'backgroundColor': 'white', 'color': '#FFFFFF', 'margin
             id='gdp-per-capita-graph',
             style={'border': '2px solid black', 
                    'height': '375px', 'width': '100%', 
-                   'margin-left': '5px', 'margin-right': '5px', 'margin-top': '1px', 'margin-bottom': '1px', 
+                   'margin-left': '5px', 'margin-right': '5px', 'margin-top': '6px', 'margin-bottom': '1px', 
                    'backgroundColor': '#000000'},
                 )
     ]),
@@ -81,44 +81,47 @@ def update_charts(selected_year):
     ############################################################################################################
     # Creating Map Figure
 
-    map_fig = px.choropleth(
-    filtered_df_map,
-    locations='Code',
-    color= np.log(filtered_df['GDP per Capita']),
-    hover_name='Country',
-    hover_data={'Code': False, 'GDP per Capita': ':,.2f'},
-    color_continuous_scale='reds',
-    projection='orthographic',
-    title=f'<b>Map of the Logarithm of GDP per Capita in {selected_year}</b>',
-    template='plotly',
-    range_color=[min(np.log(filtered_df['GDP per Capita'])), max(np.log(filtered_df['GDP per Capita']))]
-    )
+    map_fig = go.Figure(go.Choropleth(
+        locations=filtered_df_map['Code'],  # Assuming 'Code' is the column with country codes
+        z=np.log(filtered_df_map['GDP per Capita']),  # Logarithm of GDP per Capita
+        hoverinfo='location+text',
+        text=filtered_df_map['Country'],  # Country names for hover text
+        hovertemplate='%{text}<br>GDP per Capita: %{z:.2f}',  # Custom hover template
+        colorscale='Reds',
+        colorbar_title='GDP (log)',
+        marker_line_color='white',  # Line color between countries
+        marker_line_width=0.5
+    ))
 
-    # Setting the layout of the map and customising the appearance
-    map_fig.update_layout(geo=dict(showframe=False,
-                                   showcoastlines=True,
-                                    showcountries=True,
-                                    countrycolor="#d1d1d1",
-                                    showocean=True,
-                                    oceancolor="#c9d2e0",
-                                    showlakes=True,
-                                    lakecolor="#99c0db",
-                                    showrivers=True,
-                                    rivercolor="#99c0db",
-                                    resolution=110
-                                    ),
-        coloraxis_colorbar=dict(title="GDP (log)"), # the colour is denotated by the logarithm of the GDP
-        paper_bgcolor = "white",
+    # Update the layout
+    map_fig.update_layout(
+        title=dict(
+            text=f'<b>Map of the Logarithm of GDP per Capita in {selected_year}</b>',
+            x=0.5  # Center the title
+            ),
+        geo=dict(
+            showframe=False,
+            showcoastlines=True,
+            showcountries=True,
+            countrycolor="#d1d1d1",
+            showocean=True,
+            oceancolor="#c9d2e0",
+            showlakes=True,
+            lakecolor="#99c0db",
+            showrivers=True,
+            rivercolor="#99c0db",
+            projection_type='orthographic'
+            ),
+        paper_bgcolor="white",
         font=dict(color="black"),
-        margin=dict(l=20, r=20, t=40, b=10),
-        title_x=0.5 # setting the title to be in the middle of the figure
-        )
+        margin=dict(l=20, r=20, t=40, b=10)
+    )
     
     # setting the border line width
     map_fig.update_traces(marker=dict(line={"color": "black", "width": 1.5}))
     
     # setting the map to focus on Africa
-    map_fig.update_geos(projection_rotation=dict(lon=17, lat=0)) 
+    map_fig.update_geos(projection_rotation=dict(lon=17, lat=2)) 
     map_fig.update_geos(projection_scale=1.43)  # updating zoom 
 
     map_fig.add_trace(go.Scattergeo(
@@ -149,8 +152,8 @@ def update_charts(selected_year):
 
     map_fig.add_annotation(
         text="<b>Equitorial Guinea</b>",
-        x=0.46,  # Adjusted longitude for Nigeria
-        y=0.52,  # Adjusted latitude for Nigeria
+        x=0.46, 
+        y=0.5,  
         showarrow=True,
         arrowhead=1,
         arrowcolor="black",
@@ -163,6 +166,129 @@ def update_charts(selected_year):
         borderwidth=1  
     )
 
+    map_fig.update_layout(
+        margin=dict(r=100)  # Increase the right margins for images
+    )    
+
+    map_fig.update_layout(
+        annotations=[
+            dict(
+                text="<b>Equitorial Guinea</b>",
+                x=0.46,  
+                y=0.52, 
+                showarrow=True,
+                arrowhead=1,
+                arrowcolor="black",
+                arrowwidth=2,
+                ax=-200,
+                ay=0,
+                font=dict(size=12),
+                bgcolor="white",  
+                bordercolor="black",  
+                borderwidth=1  
+            ),
+            dict(
+                x=0.67,
+                y=0.43,
+                xref="paper",
+                yref="paper",
+                showarrow=True,
+                arrowhead=0,
+                arrowcolor="black",
+                arrowwidth=2,
+                ax=157,
+                ay=-170,
+            ),
+            dict(
+                x=0.67,
+                y=0.405,
+                xref="paper",
+                yref="paper",
+                showarrow=True,
+                arrowhead=0,
+                arrowcolor="black",
+                arrowwidth=2,
+                ax=157,
+                ay=-67,
+            ),
+            dict(
+                x=0.67,
+                y=0.24,
+                xref="paper",
+                yref="paper",
+                showarrow=True,
+                arrowhead=0,
+                arrowcolor="black",
+                arrowwidth=2,
+                ax=113.5,
+                ay=-20,
+            ),
+            dict(
+                x=0.67,
+                y=0.22,
+                xref="paper",
+                yref="paper",
+                showarrow=True,
+                arrowhead=0,
+                arrowcolor="black",
+                arrowwidth=2,
+                ax=113,
+                ay=36,
+            ),
+        ]),
+
+    x0_seychelles, y0_seychelles = 0.85, 0.6
+    sizex_seychelles = 0.15
+    sizey_seychelles = 0.35
+
+    map_fig.add_shape(type="rect",
+        x0=x0_seychelles, y0=y0_seychelles, x1=x0_seychelles+sizex_seychelles, y1=y0_seychelles+sizey_seychelles,
+        line=dict(color="red", width=1),
+        fillcolor="white",
+        xref="paper", yref="paper",
+        layer="below"
+    )
+
+    map_fig.add_layout_image(dict(
+        source="https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/Seychellen-512.webp",
+        x=x0_seychelles, y=y0_seychelles-0.02,
+        xref="paper", yref="paper",
+        sizex=0.4, sizey=0.4,
+        xanchor="left", yanchor="bottom",
+        layer="above"
+    ))
+
+    x0_mauritius, y0_mauritius= 0.8, 0.11
+    sizex_mauritius = 0.07
+    sizey_mauritius = 0.20
+
+    map_fig.add_shape(type="rect",
+        x0=x0_mauritius, y0=y0_mauritius, x1=x0_mauritius+sizex_mauritius, y1=y0_mauritius+sizey_mauritius,
+        line=dict(color="red", width=1),
+        fillcolor="white",
+        xref="paper", yref="paper",
+        layer="below"
+    )
+
+    map_fig.add_layout_image(dict(
+        source="https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/mauritius_img.png",
+        x=x0_mauritius, y=y0_mauritius,
+        xref="paper", yref="paper",
+        sizex=0.2, sizey=0.2,
+        xanchor="left", yanchor="bottom",
+        layer="above"
+    ))
+
+
+
+   # map_fig.update_layout_images(dict(
+    #        xref="paper",
+    #        yref="paper",
+    #        sizex=0.3,
+     #       sizey=0.3,
+     #       xanchor="right",
+      #      yanchor="bottom"
+    #))
     ############################################################################################################
     # Creating Histogram figure
     hist_fig = px.histogram(filtered_df, 
