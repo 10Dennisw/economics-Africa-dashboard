@@ -10,6 +10,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
+# libraries for image manipulation
+from PIL import Image
+import requests
+from io import BytesIO
+
 # defining name of page and path
 dash.register_page(__name__, path='/Page3', name="Africa: GDP per Capita")
 
@@ -81,17 +86,19 @@ def update_charts(selected_year):
     ############################################################################################################
     # Creating Map Figure
 
-    map_fig = go.Figure(go.Choropleth(
-        locations=filtered_df_map['Code'],  # Assuming 'Code' is the column with country codes
-        z=np.log(filtered_df_map['GDP per Capita']),  # Logarithm of GDP per Capita
-        hoverinfo='location+text',
-        text=filtered_df_map['Country'],  # Country names for hover text
-        hovertemplate='%{text}<br>GDP per Capita: %{z:.2f}',  # Custom hover template
-        colorscale='Reds',
-        colorbar_title='GDP (log)',
-        marker_line_color='white',  # Line color between countries
-        marker_line_width=0.5
-    ))
+    map_fig = px.choropleth(
+        filtered_df,
+        locations='Code',
+        color=np.log(filtered_df['GDP per Capita']),
+        hover_name='Country',
+        hover_data={'Code': False, 'GDP per Capita': ':,'},
+        custom_data=[filtered_df['GDP per Capita']],
+        color_continuous_scale='reds',
+        projection='orthographic',
+        title='',
+        template='plotly',
+        range_color=[min(np.log(df['GDP per Capita'])), max(np.log(df['GDP per Capita']))]
+    )
 
     # Update the layout
     map_fig.update_layout(
@@ -150,22 +157,6 @@ def update_charts(selected_year):
         showlegend=False
     ))
 
-    map_fig.add_annotation(
-        text="<b>Equitorial Guinea</b>",
-        x=0.46, 
-        y=0.5,  
-        showarrow=True,
-        arrowhead=1,
-        arrowcolor="black",
-        arrowwidth=2,
-        ax=-200,
-        ay=0,
-        font=dict(size=12),
-        bgcolor="white",  
-        bordercolor="black",  
-        borderwidth=1  
-    )
-
     map_fig.update_layout(
         margin=dict(r=100)  # Increase the right margins for images
     )    
@@ -175,7 +166,7 @@ def update_charts(selected_year):
             dict(
                 text="<b>Equitorial Guinea</b>",
                 x=0.46,  
-                y=0.52, 
+                y=0.50, 
                 showarrow=True,
                 arrowhead=1,
                 arrowcolor="black",
@@ -262,42 +253,152 @@ def update_charts(selected_year):
                 bgcolor="white", 
             ),
         ]),
+    
+    ############################################################################################################
+    # defining colour scale 
+    red_scale_rgb = [
+        (0.0, (255,245,240)),  
+        (0.125, (254,224,210)),  
+        (0.25, (252,187,161)),  
+        (0.375, (252,146,114)), 
+        (0.5, (251,106,74)),  
+        (0.625, (239,59,44)),
+        (0.75, (203,24,29)), 
+        (0.875, (165,15,21)),  
+        (1.0, (103,0,13)),
+    ]
 
+    # defining normalisation function
+    def generating_normalised_val(new_value, max_val, min_val):
+        return(new_value - min_val) / (max_val - min_val)
+    
+    # function to interporate colour for normalised_val
+    def interpolate_color(value, color_scale):
+        # Ensure the value is within the 0-1 range
+        value = max(0, min(1, value))
+
+        # Find the two closest points in the colorscale
+        for i in range(1, len(color_scale)):
+            if value <= color_scale[i][0]:
+                lower = color_scale[i - 1]
+                upper = color_scale[i]
+                break
+        else:
+            # If the value is above the last threshold, use the last color
+            return color_scale[-1][1]
+
+        # Interpolate between the two colors
+        ratio = (value - lower[0]) / (upper[0] - lower[0])
+        lower_color = lower[1]
+        upper_color = upper[1]
+
+        # Linear interpolation of the RGB components
+        interp_color = [int(lower_val + (upper_val - lower_val) * ratio) for lower_val, upper_val in zip(lower_color, upper_color)]
+        return interp_color
+
+    # retriving target rgb values for the seychelles
+    filtered_seychelles_df = filtered_df_map[filtered_df_map['Country'] == 'Seyshelles']
+    value = filtered_seychelles_df['GDP per Capita'].iloc[0]
+    new_value=np.log(value)
+    normalised_val = generating_normalised_val(new_value, 9, 5)
+    reds_target, greens_target, blue_target  = interpolate_color(normalised_val, red_scale_rgb)
+
+    # image manipulation to set the image to target rgb colours
+    # Define the path to your image
+    response = requests.get("https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/seychelles-map.webp")
+
+    # Load the image
+    img = Image.open(BytesIO(response.content))
+
+
+    # Convert the image to RGBA if it's not already in that mode
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    # Prepare the new image
+    new_img_s = Image.new('RGBA', img.size)
+    width, height = img.size
+
+    # Define the black and red colors
+    black = (0, 0, 0, 255)
+    target_colour = (reds_target, greens_target, blue_target, 255)
+
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b, a = img.getpixel((x, y))
+            # If the pixel is black, copy it to the new image
+            if r <= 20 or g <= 20 or b <= 20:
+                new_img_s.putpixel((x, y), target_colour)
+
+    # setting size and format of the sychelles image
     x0_seychelles, y0_seychelles = 0.85, 0.6
     sizex_seychelles = 0.15
     sizey_seychelles = 0.35
 
     map_fig.add_shape(type="rect",
         x0=x0_seychelles, y0=y0_seychelles, x1=x0_seychelles+sizex_seychelles, y1=y0_seychelles+sizey_seychelles,
-        line=dict(color="red", width=1),
+        line=dict(color="black", width=1),
         fillcolor="white",
         xref="paper", yref="paper",
         layer="below"
     )
 
     map_fig.add_layout_image(dict(
-        source="https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/Seychellen-512.webp",
-        x=x0_seychelles, y=y0_seychelles-0.02,
+        source=new_img_s,
+        x=x0_seychelles+0.01, y=y0_seychelles+0.001,
         xref="paper", yref="paper",
-        sizex=0.4, sizey=0.4,
+        sizex=0.34, sizey=0.34,
         xanchor="left", yanchor="bottom",
         layer="above"
     ))
 
+    # retrieving rbg colours for the mauritius image
+    filtered_mauritius_df = filtered_df_map[filtered_df_map['Country'] == 'Mauritius']
+    value = filtered_mauritius_df['GDP per Capita'].iloc[0]
+    new_value=np.log(value)
+    normalised_val = generating_normalised_val(new_value, 9, 5)
+    reds_target, greens_target, blue_target  = interpolate_color(normalised_val, red_scale_rgb)
+
+    # manipulating image to make it the target colour
+    response = requests.get("https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/mauritius_img.png")
+    img = Image.open(BytesIO(response.content))
+
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+
+    # Preparing the new image
+    new_img_m = Image.new('RGBA', img.size)
+    width, height = img.size
+
+    # Define the target colour
+    target_colour = (reds_target, greens_target, blue_target, 255)
+
+    width, height = img.size
+    for x in range(width):
+        for y in range(height):
+            r, g, b, a = img.getpixel((x, y))
+            # If the pixel is black, copy it to the new image
+            if r >= 20 and g >= 20 and b >= 20:
+                new_img_m.putpixel((x, y), target_colour)
+
+    # setting size and format of the sychelles image
     x0_mauritius, y0_mauritius= 0.8, 0.11
     sizex_mauritius = 0.07
     sizey_mauritius = 0.20
 
     map_fig.add_shape(type="rect",
         x0=x0_mauritius, y0=y0_mauritius, x1=x0_mauritius+sizex_mauritius, y1=y0_mauritius+sizey_mauritius,
-        line=dict(color="red", width=1),
+        line=dict(color="black", width=1),
         fillcolor="white",
         xref="paper", yref="paper",
         layer="below"
     )
 
+    # colour manipulation of the image to make it the shade of red
+
     map_fig.add_layout_image(dict(
-        source="https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/mauritius_img.png",
+        source=new_img_m,
         x=x0_mauritius, y=y0_mauritius,
         xref="paper", yref="paper",
         sizex=0.2, sizey=0.2,
