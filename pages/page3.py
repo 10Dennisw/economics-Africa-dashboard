@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 
 # libraries for image manipulation
-from PIL import Image
+from PIL import Image, ImageOps, ImageDraw
 import requests
 from io import BytesIO
 
@@ -179,7 +179,7 @@ def update_charts(selected_year):
                 borderwidth=1  
             ),
             dict(
-                x=0.67,
+                x=0.669,
                 y=0.43,
                 xref="paper",
                 yref="paper",
@@ -187,23 +187,23 @@ def update_charts(selected_year):
                 arrowhead=0,
                 arrowcolor="black",
                 arrowwidth=2,
-                ax=157,
+                ax=161,
                 ay=-170,
             ),
             dict(
-                x=0.67,
-                y=0.405,
+                x=0.669,
+                y=0.412,
                 xref="paper",
                 yref="paper",
                 showarrow=True,
                 arrowhead=0,
                 arrowcolor="black",
                 arrowwidth=2,
-                ax=157,
+                ax=161,
                 ay=-67,
             ),
             dict(
-                x=0.67,
+                x=0.666,
                 y=0.24,
                 xref="paper",
                 yref="paper",
@@ -211,19 +211,19 @@ def update_charts(selected_year):
                 arrowhead=0,
                 arrowcolor="black",
                 arrowwidth=2,
-                ax=113.5,
-                ay=-20,
+                ax=118.9,
+                ay=-22,
             ),
             dict(
-                x=0.67,
-                y=0.22,
+                x=0.666,
+                y=0.225,
                 xref="paper",
                 yref="paper",
                 showarrow=True,
                 arrowhead=0,
                 arrowcolor="black",
                 arrowwidth=2,
-                ax=113,
+                ax=118.9,
                 ay=36,
             ),
             dict(
@@ -364,23 +364,57 @@ def update_charts(selected_year):
     response = requests.get("https://raw.githubusercontent.com/10Dennisw/economics-africa-dashboard/master/mauritius_img.png")
     img = Image.open(BytesIO(response.content))
 
+    # Ensure the image is in RGBA mode
     if img.mode != 'RGBA':
         img = img.convert('RGBA')
 
-    # Preparing the new image
-    new_img_m = Image.new('RGBA', img.size)
-    width, height = img.size
+    # Add padding around the image
+    padding_width = 10  # Padding width in pixels
+    padded_img = ImageOps.expand(img, border=padding_width, fill=(0, 0, 0, 0))  # Fill with transparent color for RGBA
 
-    # Define the target colour
-    target_colour = (reds_target, greens_target, blue_target, 255)
+    # Prepare the new image with the same size as the padded image
+    new_img_m = Image.new('RGBA', padded_img.size)
 
-    width, height = img.size
-    for x in range(width):
-        for y in range(height):
-            r, g, b, a = img.getpixel((x, y))
-            # If the pixel is black, copy it to the new image
-            if r >= 20 and g >= 20 and b >= 20:
+    # Define colours and thickness
+    transparent_colour = (0, 0, 0, 0)  # Transparent
+    target_colour = (reds_target, greens_target, blue_target, 255)  # Red (example target color)
+    outline_colour = (0, 0, 0, 255)  # Black for the outline
+    outline_thickness = 7  # Thickness of the outline
+
+    # a function to check if a pixel is a target pixel
+    def is_target_pixel(pixel):
+        r, g, b, a = pixel
+        return r >= 20 and g >= 20 and b >= 20
+
+    # List to store edge pixels
+    edge_pixels = []
+
+    # Identifing the edge pixels
+    for x in range(padded_img.size[0]):
+        for y in range(padded_img.size[1]):
+            current_pixel = padded_img.getpixel((x, y))
+            if is_target_pixel(current_pixel):
+                neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
+                is_edge = any((0 <= nx < padded_img.size[0] and 0 <= ny < padded_img.size[1] and not is_target_pixel(padded_img.getpixel((nx, ny))))
+                            for nx, ny in neighbors)
+                if is_edge:
+                    edge_pixels.append((x, y))
+
+    # Dilating the edge pixels and drawing the outline
+    for x, y in edge_pixels:
+        for dx in range(-outline_thickness, outline_thickness + 1):
+            for dy in range(-outline_thickness, outline_thickness + 1):
+                if 0 <= x + dx < padded_img.size[0] and 0 <= y + dy < padded_img.size[1]:
+                    new_img_m.putpixel((x + dx, y + dy), outline_colour)
+
+    # Filling in the target areas with the target colour
+    for x in range(padded_img.size[0]):
+        for y in range(padded_img.size[1]):
+            if is_target_pixel(padded_img.getpixel((x, y))) and new_img_m.getpixel((x, y)) != outline_colour:
                 new_img_m.putpixel((x, y), target_colour)
+            else:
+                if new_img_m.getpixel((x, y)) != outline_colour:
+                    new_img_m.putpixel((x, y), transparent_colour)
 
     # setting size and format of the sychelles image
     x0_mauritius, y0_mauritius= 0.8, 0.11
