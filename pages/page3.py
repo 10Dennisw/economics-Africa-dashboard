@@ -440,26 +440,20 @@ def update_charts(selected_year):
         layer="above"
     ))
 
+    config = {'staticPlot': True}
 
 
-   # map_fig.update_layout_images(dict(
-    #        xref="paper",
-    #        yref="paper",
-    #        sizex=0.3,
-     #       sizey=0.3,
-     #       xanchor="right",
-      #      yanchor="bottom"
-    #))
+
     ############################################################################################################
     # Creating Histogram figure
     hist_fig = px.histogram(filtered_df, 
                             x='GDP per Capita', 
                             nbins=50, 
-                            title=f'<b>Top 10 Economies (GDP per Capita) in {selected_year}</b>', 
+                            title=f'<b>Histogram of (GDP per Capita) in {selected_year}</b>', 
                             labels={'GDP per Capita': 'GDP per Capita', 'count': 'Frequency'})
     
     # adding a black outline around the each bar of the histogram
-    hist_fig.update_traces(marker_line_color='black', marker_line_width=1.5)
+    hist_fig.update_traces(marker_color='#E14DFF', marker_line_color='black', marker_line_width=1.5)
 
     hist_fig.update_layout(title_x=0.5, # setting the title to be in the middle of the figure
                            font=dict(color="black")
